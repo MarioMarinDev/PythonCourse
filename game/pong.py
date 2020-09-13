@@ -1,14 +1,16 @@
 import pygame
 import random
 
-def collisionCheck(obj1_x, obj1_y, obj1_img, obj2_x, obj2_y, obj2_img):
+
+def collision_check(obj1_x, obj1_y, obj1_img, obj2_x, obj2_y, obj2_img):
     obj1_size = obj1_img.get_rect().size
     obj2_size = obj2_img.get_rect().size
     obj1_rect = pygame.Rect(obj1_x, obj1_y, obj1_size[0], obj1_size[1])
     obj2_rect = pygame.Rect(obj2_x, obj2_y, obj2_size[0], obj2_size[1])
     return obj1_rect.colliderect(obj2_rect)
 
-# Inicializar pygame
+
+# Inicializar y configurar pygame
 pygame.init()
 pygame.display.set_caption("PONG!")
 icon = pygame.image.load("assets/icon.png")
@@ -25,6 +27,8 @@ playerX = 32
 playerY = 204
 playerVspd = 0
 playerSpd = 0.3
+playerWidth, playerHeight = playerImg.get_rect().size
+playerHit = False
 
 # Crear pelota
 ballImg = pygame.image.load("assets/ball.png")
@@ -67,19 +71,27 @@ while running:
     # Agregar velocidad al jugador
     playerY += playerVspd
 
+    # Solo mover jugador dentro de la ventana
+    if playerY < 0:
+        playerY = 0
+    elif playerY + playerHeight > screenHeight:
+        playerY = screenHeight - playerHeight
+
     # Agregar velocidad a la pelota
     ballX += ballHspd
     ballY += ballVspd
 
     # Cambiar la dirección de la pelota
-    playerHit = collisionCheck(playerX, playerY, playerImg, ballX, ballY, ballImg)
+    playerHit = collision_check(playerX, playerY, playerImg, ballX, ballY, ballImg) and not playerHit
     if ballY < 0 or ballY + ballHeight > screenHeight:
         ballVspd *= -1
+        playerHit = False
     if playerHit or ballX + ballWidth > screenWidth:
         ballHspd *= -1
 
     # Agregar puntaje
     if playerHit:
+        playerHit = True
         score += 1
 
     # Checar si se terminó el juego
