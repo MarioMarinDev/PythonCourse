@@ -28,7 +28,7 @@ playerY = 204
 playerVspd = 0
 playerSpd = 0.3
 playerWidth, playerHeight = playerImg.get_rect().size
-playerHit = False
+playerJustHit = False
 
 # Crear pelota
 ballImg = pygame.image.load("assets/ball.png")
@@ -46,6 +46,9 @@ score_font = pygame.font.Font('freesansbold.ttf', 32)
 # Crear fin de juego
 end_text = "Fin del juego"
 end_font = pygame.font.Font('freesansbold.ttf', 64)
+
+# Crear sonido de golpe
+hitSound = pygame.mixer.Sound("assets/hit.wav")
 
 # Lógica de juego
 running = True
@@ -78,21 +81,29 @@ while running:
         playerY = screenHeight - playerHeight
 
     # Agregar velocidad a la pelota
-    ballX += ballHspd
-    ballY += ballVspd
+    if not ended:
+        ballX += ballHspd
+        ballY += ballVspd
 
     # Cambiar la dirección de la pelota
-    playerHit = collision_check(playerX, playerY, playerImg, ballX, ballY, ballImg) and not playerHit
+    hit = False
+    playerHit = collision_check(playerX, playerY, playerImg, ballX, ballY, ballImg) and not playerJustHit
     if ballY < 0 or ballY + ballHeight > screenHeight:
+        hit = True
         ballVspd *= -1
-        playerHit = False
+        playerJustHit = False
     if playerHit or ballX + ballWidth > screenWidth:
+        hit = True
         ballHspd *= -1
 
     # Agregar puntaje
     if playerHit:
-        playerHit = True
+        playerJustHit = True
         score += 1
+
+    # Reproducir audio
+    if hit:
+        hitSound.play()
 
     # Checar si se terminó el juego
     if ballX < 0:
