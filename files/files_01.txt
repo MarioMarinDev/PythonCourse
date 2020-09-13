@@ -1,0 +1,4 @@
+Este es un texto texto de un archivo txt.
+Esta es la segunda linea de mi documento
+Esta es la tercera linea de mi documento
+Esta es la ultima linea de mi documento
