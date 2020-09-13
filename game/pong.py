@@ -2,6 +2,7 @@ import pygame
 import random
 
 
+# Checar si dos objectos colisionan
 def collision_check(obj1_x, obj1_y, obj1_img, obj2_x, obj2_y, obj2_img):
     obj1_size = obj1_img.get_rect().size
     obj2_size = obj2_img.get_rect().size
@@ -10,115 +11,133 @@ def collision_check(obj1_x, obj1_y, obj1_img, obj2_x, obj2_y, obj2_img):
     return obj1_rect.colliderect(obj2_rect)
 
 
-# Inicializar y configurar pygame
+# Inicializar
 pygame.init()
 pygame.display.set_caption("PONG!")
-icon = pygame.image.load("assets/icon.png")
-pygame.display.set_icon(icon)
+iconImg = pygame.image.load("assets/icon.png")
+pygame.display.set_icon(iconImg)
 
-# Crear ventana de juego
 screenWidth = 800
 screenHeight = 600
 screen = pygame.display.set_mode((screenWidth, screenHeight))
 
-# Crear un jugador
+# Colores (Red, Green, Blue)
+cWhite = (255, 255, 255)
+cBlack = (0, 0, 0)
+
+# Crear jugador
 playerImg = pygame.image.load("assets/player.png")
-playerX = 32
-playerY = 204
-playerVspd = 0
-playerSpd = 0.3
 playerWidth, playerHeight = playerImg.get_rect().size
+playerX = 50
+playerY = (screenHeight / 2) - (playerHeight / 2)
+playerSpd = 0.3
+playerVspd = 0
 playerJustHit = False
 
-# Crear pelota
+# Crear la pelota
 ballImg = pygame.image.load("assets/ball.png")
-ballX = 400
-ballY = 300
-ballSpd = 0.25
+oBallX = 384
+oBallY = 284
+ballX = oBallX
+ballY = oBallY
+ballSpd = 0.3
 ballHspd = random.choice([ballSpd, -ballSpd])
 ballVspd = random.choice([ballSpd, -ballSpd])
 ballWidth, ballHeight = ballImg.get_rect().size
 
 # Crear puntaje
 score = 0
-score_font = pygame.font.Font('freesansbold.ttf', 32)
+scoreFont = pygame.font.Font("freesansbold.ttf", 32)
 
 # Crear fin de juego
-end_text = "Fin del juego"
-end_font = pygame.font.Font('freesansbold.ttf', 64)
+ended = False
+endText = "Game Over"
+endFont = pygame.font.Font("freesansbold.ttf", 64)
 
-# Crear sonido de golpe
+# Crear sonido del golpe
 hitSound = pygame.mixer.Sound("assets/hit.wav")
 
-# Lógica de juego
 running = True
-ended = False
 while running:
     # Dibujar el fondo de pantalla
-    screen.fill((0, 0, 0))
+    screen.fill(cBlack)
     # Checar los eventos del juego
     for event in pygame.event.get():
-        # Terminar el ciclo de juego si se presiona "X"
+        # Si el jugador presionó "X"
         if event.type == pygame.QUIT:
             running = False
-        # Checar si se presiona arriba o abajo
+        # Si se presiona arriba o abajo o enter
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_UP:
                 playerVspd = -playerSpd
             if event.key == pygame.K_DOWN:
                 playerVspd = playerSpd
+            if event.key in [pygame.K_SPACE, pygame.K_RETURN] and ended:
+                ended = False
+                score = 0
+                ballX = oBallX
+                ballY = oBallY
+                ballHspd = random.choice([ballSpd, -ballSpd])
+                ballVspd = random.choice([ballSpd, -ballSpd])
+        # Si se deja de presionar arriba o abajo
         if event.type == pygame.KEYUP:
             if event.key in [pygame.K_UP, pygame.K_DOWN]:
                 playerVspd = 0
 
-    # Agregar velocidad al jugador
+    # Aplicar velocidad al jugador
     playerY += playerVspd
 
-    # Solo mover jugador dentro de la ventana
-    if playerY < 0:
-        playerY = 0
-    elif playerY + playerHeight > screenHeight:
-        playerY = screenHeight - playerHeight
-
-    # Agregar velocidad a la pelota
+    # Aplicar velocidad a la pelota
     if not ended:
         ballX += ballHspd
         ballY += ballVspd
 
-    # Cambiar la dirección de la pelota
+    # Limitar movimiento del jugador
+    if playerY < 0:
+        playerY = 0
+    elif playerY > screenHeight - playerHeight:
+        playerY = screenHeight - playerHeight
+
+    # Rebotar la pelota
     hit = False
-    playerHit = collision_check(playerX, playerY, playerImg, ballX, ballY, ballImg) and not playerJustHit
+    if ballX + ballWidth > screenWidth:
+        hit = True
+        playerJustHit = False
+        ballHspd *= -1
     if ballY < 0 or ballY + ballHeight > screenHeight:
         hit = True
         ballVspd *= -1
-        playerJustHit = False
-    if playerHit or ballX + ballWidth > screenWidth:
+    if collision_check(playerX, playerY, playerImg, ballX, ballY, ballImg) and not playerJustHit:
         hit = True
-        ballHspd *= -1
-
-    # Agregar puntaje
-    if playerHit:
         playerJustHit = True
         score += 1
+        ballHspd *= -1
 
-    # Reproducir audio
+    # Reproducir sonido de golpe
     if hit:
         hitSound.play()
 
-    # Checar si se terminó el juego
-    if ballX < 0:
+    # Checar si se acabó el juego
+    if ballX + ballWidth < 0:
         ended = True
 
-    # Renderizar el jugador
+    # Renderizar jugador
     screen.blit(playerImg, (playerX, playerY))
-    # Renderizar la pelota
+    # Renderizar pelota
     screen.blit(ballImg, (ballX, ballY))
-    # Renderizar puntaje
-    score_render = score_font.render("Puntaje: " + str(score), True, (255, 255, 255))
-    screen.blit(score_render, (5, 5))
-    # Renderizar fin de juego
+    # Renderizar el puntaje
+    scoreRender = scoreFont.render("Score: " + str(score), True, cWhite)
+    screen.blit(scoreRender, (5, 5))
+    # Renderizar el fin de juego
     if ended:
-        end_render = end_font.render(end_text, True, (255, 255, 255))
-        screen.blit(end_render, (200, 270))
-    # Actualizar pantalla
+        endRender = endFont.render(endText, True, cWhite)
+        endWidth, endHeight = endRender.get_rect().size
+        endX = (screenWidth / 2) - (endWidth / 2)
+        endY = (screenHeight / 2) - (endHeight / 2)
+        screen.blit(endRender, (endX, endY))
+        restartRender = scoreFont.render("Press Enter to Restart", True, cWhite)
+        restartWidth, restartHeight = restartRender.get_rect().size
+        restartX = (screenWidth / 2) - (restartWidth / 2)
+        restartY = endY + endHeight
+        screen.blit(restartRender, (restartX, restartY))
     pygame.display.update()
