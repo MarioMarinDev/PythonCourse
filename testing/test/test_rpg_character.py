@@ -34,6 +34,19 @@ class TestRpgCharacter(unittest.TestCase):
         self.assertEqual(self.geralt.attack_damage, 102)
         self.assertEqual(self.cloud.attack_damage, 72)
 
+    def test_modify_health(self):
+        self.assertEqual(self.geralt.health, 148)
+        # Remove some health
+        self.geralt.modify_health(-48)
+        self.assertEqual(self.geralt.health, 100)
+        # Remove all health
+        self.geralt.modify_health(-5000)
+        self.assertEqual(self.geralt.health, 0)
+        # Add over the max health
+        self.geralt.modify_health(5000)
+        self.assertEqual(self.geralt.health, 148)
+
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -1,9 +1,10 @@
 import unittest
+import json
+import os
 from unittest.mock import patch
 from rpg.database_manager import DatabaseManager
 
 
-@patch('rpg.database_manager.DatabaseManager.load_file')
 class TestRpgDatabaseManager(unittest.TestCase):
 
     def setUp(self):
@@ -18,26 +19,35 @@ class TestRpgDatabaseManager(unittest.TestCase):
                 "level": 35
             }
         ]
+        with patch('rpg.database_manager.DatabaseManager.load_file') as mock_load_file:
+            mock_load_file.return_value = self.party_json
+            self.db = DatabaseManager()
 
-    def test_remove_party_member(self, mock_load_file):
-        mock_load_file.return_value = self.party_json
-        db = DatabaseManager()
-        self.assertEqual(len(db.party), 2)
-        db.remove_party_member("Geralt")
-        self.assertEqual(len(db.party), 1)
+    def test_remove_party_member(self):
+        self.assertEqual(len(self.db.party), 2)
+        self.db.remove_party_member("Geralt")
+        self.assertEqual(len(self.db.party), 1)
 
-    def test_remove_party_member_failed(self, mock_load_file):
-        mock_load_file.return_value = self.party_json
-        db = DatabaseManager()
-        self.assertEqual(len(db.party), 2)
-        db.remove_party_member("Tifa")
-        self.assertEqual(len(db.party), 2)
+    def test_remove_party_member_failed(self):
+        self.assertEqual(len(self.db.party), 2)
+        self.db.remove_party_member("Tifa")
+        self.assertEqual(len(self.db.party), 2)
 
-    def test_party_names(self, mock_load_file):
-        mock_load_file.return_value = self.party_json
-        db = DatabaseManager()
+    def test_party_names(self):
         expected = ["Geralt of Rivia", "Cloud Strife"]
-        self.assertEqual(db.party_names(), expected)
+        self.assertEqual(self.db.party_names(), expected)
+
+    def test_load_file(self):
+        # File does not exist
+        db = DatabaseManager()
+        self.assertEqual(db.party, [])
+        # File does exists
+        file = open("party.json", "w")
+        file.write(json.dumps(self.party_json, indent=2))
+        file.close()
+        db = DatabaseManager()
+        self.assertEqual(len(db.party), 2)
+        os.remove("party.json")
 
 
 if __name__ == '__main__':

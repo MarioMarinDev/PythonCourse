@@ -43,8 +43,3 @@ def calculate(calc):
         return multiply(a, b)
     else:
         return divide(a, b)
-
-
-if __name__ == '__main__':
-    result = calculate("10 ! 5")
-    print(result)

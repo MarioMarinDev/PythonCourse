@@ -31,10 +31,3 @@ class DatabaseManager:
         for party_member in self.party:
             names.append(party_member.full_name)
         return names
-
-
-if __name__ in '__main__':
-    db = DatabaseManager()
-    print(db.party_names())
-    db.remove_party_member("Geralt")
-    print(db.party_names())
