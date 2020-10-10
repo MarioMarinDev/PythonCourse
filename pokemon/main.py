@@ -2,6 +2,7 @@ from scenes.home import Home
 from scenes.look import Look
 from classes.input import Input
 from classes.scene_manager import SceneManager
+from game import colors
 import pygame
 
 pygame.init()
@@ -20,7 +21,7 @@ scene_manager = SceneManager(scenes, "home")
 
 running = True
 while running:
-    screen.fill((0, 0, 0))
+    screen.fill(colors.background)
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
@@ -46,7 +47,9 @@ while running:
                 input_control.move_left = False
             if event.key in [pygame.K_SPACE, pygame.K_RETURN]:
                 input_control.accept = False
-    scene_manager.control()
+    action_data = scene_manager.control()
+    if type(action_data) == dict and action_data["action"] == "shutdown":
+        running = False
     pygame.display.update()
 
 
