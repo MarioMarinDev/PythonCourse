@@ -28,4 +28,4 @@ if __name__ == '__main__':
     a = [5, 6, 7, 5]
     b = [3, 6, 10, 5]
     result = compareTriplets(a, b)
-    print(result
+    print(result)
