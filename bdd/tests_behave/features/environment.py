@@ -1,13 +1,23 @@
-from behave import fixture, use_fixture
 from selenium import webdriver
+import time
 
-@fixture
-def start_chrome_driver(context):
-    context.driver = webdriver.Chrome(executable_path="drivers/chromedriver.exe")
+"""
+def before_scenario(context, scenario):
+    if "web" in scenario.tags:
+        context.driver = webdriver.Chrome(executable_path="drivers/chromedriver.exe")
 
-# before_all
-def before_feature(context, feature):
-    use_fixture(start_chrome_driver, context)
+def after_scenario(context, scenario):
+    if "web" in scenario.tags:
+        context.driver.close()
+"""
 
-def after_feature(context, feature):
-    context.driver.close()
+def before_tag(context, tag):
+    if tag == "web":
+        context.driver = webdriver.Chrome(executable_path="drivers/chromedriver.exe")
+
+def after_tag(context, tag):
+    if tag == "web":
+        context.driver.close()
+
+def after_step(context, step):
+    time.sleep(1)

@@ -11,13 +11,11 @@ Tres formas de usar el driver
   3. Especificar el path al driver
 """
 driver = webdriver.Chrome(executable_path="drivers/chromedriver.exe")
-"""
 driver.get("https://www.python.org")
 element = driver.find_element_by_name("q")
 element.clear()
 element.send_keys("pycon")
 element.send_keys(Keys.RETURN)
-"""
 page = "file:///C:/Users/Mario/PycharmProjects/PythonCourse/bdd/http/example.html"
 finding.main(driver, page)
 # inputs.main(driver, page)
