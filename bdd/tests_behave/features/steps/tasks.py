@@ -36,7 +36,6 @@ def step_impl(context, card_title):
 @when('I click on the Edit link of the "{}" task card')
 def step_impl(context, task_title):
     found_card = None
-    # [ el1, el2, el3 ]
     cards = context.driver.find_elements_by_class_name('task-title')
     for card in cards:
         if task_title in card.text:
@@ -46,9 +45,25 @@ def step_impl(context, task_title):
     btn_edit = root.find_element_by_partial_link_text("Edit")
     btn_edit.click()
 
+@when('I click on the Delete button of the "{}" task card')
+def step_impl(context, task_title):
+    xpath = "//*[contains(@class, 'card-header') and contains(.,'{}')]".format(task_title)
+    xpath += "//button[contains(.,'Delete')]"
+    btn_delete = context.driver.find_element_by_xpath(xpath)
+    btn_delete.click()
+
 @then('I see a "{}" task card description')
 def step_impl(context, task_description):
     assert context.driver.find_element_by_xpath("//*[text()='{}']".format(task_description))
+
+@then('I will not see a "{}" task card')
+def step_impl(context, card_title):
+    card_exists = False
+    cards = context.driver.find_elements_by_class_name('task-title')
+    for card in cards:
+        if card_title in card.text:
+            card_exists = True
+    assert not card_exists, "Card with title: " + card_title + " exists"
 
 
 

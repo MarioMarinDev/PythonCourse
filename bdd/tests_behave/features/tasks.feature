@@ -1,6 +1,5 @@
 
 Feature: Testing tasks
-
   @web
   Scenario: Create a new task
     Given I am in the "http://localhost:8000" page
@@ -23,3 +22,11 @@ Feature: Testing tasks
     And I click on the "Save" button
     Then I see a "TT 2" task card
     And I see a "This is a test, please delete. This has been updated." task card description
+
+  @web
+  Scenario: Delete a task
+    Given I am in the "http://localhost:8000" page
+    And I am already logged in
+    When I click on the "View tasks" link
+    And I click on the Delete button of the "TT 2" task card
+    Then I will not see a "TT 2" task card
